@@ -10,4 +10,4 @@ CREATE TABLE auth.users (
 );
 
 INSERT INTO auth.users(login, password, isAdmin) VALUES('admin',
-	'$2y$10$YBFS1g6ebVPIHx5psRrnSuCoKLI8plxYgkX4Wwc3HVR8yeneBLz9m', true);
+	'$2b$10$NtXXw9hMHlrmkdlaFRCBbeXNwERnZ9tMPL2fr5x52B48fUYLFatrq', true);

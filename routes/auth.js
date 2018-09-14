@@ -32,9 +32,34 @@ module.exports = app => {
     
     app.post('/api/login',(req, res)=>{
         const loginRequest = req.body; 
-        const token = jwt.sign({data: loginRequest.username}, jwtSecret
-                                    , { expiresIn: '24h' });
-        res.json(token);
+
+        const connection = connectionFactory();
+        var userConnection = new UserDAO(connection);
+        userConnection.getByLogin(loginRequest.username,  (error,user)=>{
+            if(error)
+            {
+                console.log("Can not auth user. Error: "+JSON.stringify(error));
+                return res.status(500).send("Can not auth user.");
+            }
+
+            if(user.length == 0)
+            {
+                console.log("Invalid user or password.");
+                return res.status(500).send("Invalid user or password.");
+            }
+
+            bcrypt.compare(loginRequest.password, user[0].password, function(err, test) {
+                if(test == false)
+                {
+                    console.log("Invalid user or password.");
+                    return res.status(500).send("Invalid user or password.");
+                }
+                
+                const token = jwt.sign({data: loginRequest.username}, jwtSecret, { expiresIn: '24h' });
+                res.json(token);
+            });
+              
+        });
     });
 
     app.get('/', (req, res)=>{
