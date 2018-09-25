@@ -26,7 +26,7 @@ module.exports = app => {
                 return res.status(201).send("User created!");
             });
         }).catch((error)=>{
-            res.send("Can not create hash! Error: "+error);  
+            return res.send("Can not create hash! Error: "+error);  
         });
     });
     
@@ -56,17 +56,24 @@ module.exports = app => {
                 }
                 
                 const token = jwt.sign({data: loginRequest.username}, jwtSecret, { expiresIn: '24h' });
-                res.json(token);
+                res.status(200).send(token);
             });
               
         });
     });
 
+    app.get('/verifytoken', verifyToken, (req, res)=>{
+
+        return res.status(200).send("Token valid");
+    });
+
     app.get('/', (req, res)=>{
         console.log(req.body.name);
-        res.json({api: 'Auth API'});
+        return res.json({api: 'Auth API'});
     });
 }
+
+
 
 function verifyToken(req, res, next){
     if(req.headers.authorization == undefined)
@@ -76,10 +83,12 @@ function verifyToken(req, res, next){
     
     if(token[1] == undefined)
         return res.status('403').send('Token not found');
+
+        console.log(token[1]);
         
     jwt.verify(token[1],jwtSecret, (error, authPayload) => {
         if(error)
-            return res.status('403').send('Failed to authenticate token.'); 
+            return res.status('401').json({msg: 'Failed to authenticate token.', auth: 0}); 
         req.data = authPayload;
         next();
     });
